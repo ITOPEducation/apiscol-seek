@@ -412,7 +412,8 @@ public class SeekApi extends ApiscolApi {
 					.ok(metadataResponseJson, "application/x-javascript")
 					.build();
 		}
-		return Response.ok(metadataResponse, MediaType.APPLICATION_XML).build();
+		return Response.ok(metadataResponse, MediaType.APPLICATION_XML)
+				.header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	private Response searchMetadata(String query, String callBack, float fuzzy,
@@ -460,9 +461,9 @@ public class SeekApi extends ApiscolApi {
 					.get(ClientResponse.class);
 		} catch (ClientHandlerException e) {
 			e.printStackTrace();
-			
+
 			throw new MetadataRepositoryFailureException(
-					"Timeout for metadata repository request "+e.getMessage());
+					"Timeout for metadata repository request " + e.getMessage());
 		}
 
 		if (metadataWebServiceResponse.getStatus() != Status.OK.getStatusCode()) {
@@ -505,7 +506,8 @@ public class SeekApi extends ApiscolApi {
 					.ok(metadataResponseJson, "application/x-javascript")
 					.build();
 		}
-		return Response.ok(metadataResponse, MediaType.APPLICATION_XML).build();
+		return Response.ok(metadataResponse, MediaType.APPLICATION_XML)
+				.header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	@GET
@@ -560,7 +562,9 @@ public class SeekApi extends ApiscolApi {
 					.ok(metadataResponseJson, "application/x-javascript")
 					.build();
 		}
-		return Response.ok(metadataResponse, MediaType.APPLICATION_XML).build();
+
+		return Response.ok(metadataResponse, MediaType.APPLICATION_XML)
+				.header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	public void notifyRequestTermination(UUID identifier, Document response) {
