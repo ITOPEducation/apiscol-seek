@@ -149,6 +149,9 @@ public class SeekApi extends ApiscolApi {
 	 *            Pagination start
 	 * @param rows
 	 *            Pagination end
+	 * @param sort
+	 *            Field used for sorting of results : may be "score" (default)
+	 *            or "title"
 	 * @param includeDescription
 	 *            If set to true, more informative (textual) content will be
 	 *            delivered : title, summary. For clients who are considering
@@ -332,6 +335,7 @@ public class SeekApi extends ApiscolApi {
 			@DefaultValue("") @QueryParam(value = "dynamic-filters") final String dynamicFilters,
 			@DefaultValue("0") @QueryParam(value = "start") final int start,
 			@DefaultValue("10") @QueryParam(value = "rows") final int rows,
+			@DefaultValue("score") @QueryParam(value = "sort") final String sort,
 			@DefaultValue("false") @QueryParam(value = "thumbs") String addThumbs,
 			@QueryParam(value = "format") final String format)
 			throws UnknownMetadataRepositoryException,
@@ -340,7 +344,7 @@ public class SeekApi extends ApiscolApi {
 		String requestedFormat = guessRequestedFormat(request, format);
 		if (StringUtils.isEmpty(metadataId))
 			return searchMetadata(query, callBack, fuzzy, staticFilters,
-					dynamicFilters, start, rows, requestedFormat,
+					dynamicFilters, start, rows, sort, requestedFormat,
 					StringUtils.equals(addThumbs, "true"));
 
 		else
@@ -418,7 +422,7 @@ public class SeekApi extends ApiscolApi {
 
 	private Response searchMetadata(String query, String callBack, float fuzzy,
 			String staticFilters, String dynamicFilters, int start, int rows,
-			String requestedFormat, boolean addThumbs)
+			String sort, String requestedFormat, boolean addThumbs)
 			throws MetadataRepositoryFailureException, ClientHandlerException,
 			UniformInterfaceException {
 		MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
@@ -451,6 +455,7 @@ public class SeekApi extends ApiscolApi {
 		queryParams.add("dynamic-filters", dynamicFilters);
 		queryParams.add("start", Integer.toString(start));
 		queryParams.add("rows", Integer.toString(rows));
+		queryParams.add("sort", sort);
 		queryParams.add("desc", "true");
 		// ask metadata web service
 		ClientResponse metadataWebServiceResponse = null;
