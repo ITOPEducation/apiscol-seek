@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
@@ -320,6 +322,7 @@ public class SeekApi extends ApiscolApi {
 	 * @throws UniformInterfaceException
 	 * @throws ClientHandlerException
 	 * @throws MetadataRepositoryFailureException
+	 * @throws InvalidMetadataListException
 	 */
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_ATOM_XML,
@@ -328,6 +331,7 @@ public class SeekApi extends ApiscolApi {
 	public Response getMetadata(
 			@Context HttpServletRequest request,
 			@DefaultValue("") @QueryParam(value = "mdid") final String metadataId,
+			@DefaultValue("") @QueryParam(value = "mdids") final String metadataIds,
 			@QueryParam(value = "query") final String query,
 			@DefaultValue("handleQueryResult") @QueryParam(value = "callback") final String callBack,
 			@DefaultValue("0") @QueryParam(value = "fuzzy") final float fuzzy,
@@ -340,16 +344,16 @@ public class SeekApi extends ApiscolApi {
 			@QueryParam(value = "format") final String format)
 			throws UnknownMetadataRepositoryException,
 			MetadataRepositoryFailureException, ClientHandlerException,
-			UniformInterfaceException {
+			UniformInterfaceException, InvalidMetadataListException {
 		String requestedFormat = guessRequestedFormat(request, format);
-		if (StringUtils.isEmpty(metadataId))
-			return searchMetadata(query, callBack, fuzzy, staticFilters,
-					dynamicFilters, start, rows, sort, requestedFormat,
-					StringUtils.equals(addThumbs, "true"));
-
-		else
+		if (!StringUtils.isEmpty(metadataId))
 			return getMetadataById(metadataId, callBack, requestedFormat,
 					StringUtils.equals(addThumbs, "true"));
+		if (!StringUtils.isEmpty(metadataIds))
+			return getMetadataListByIds(metadataIds, callBack, requestedFormat);
+		return searchMetadata(query, callBack, fuzzy, staticFilters,
+				dynamicFilters, start, rows, sort, requestedFormat,
+				StringUtils.equals(addThumbs, "true"));
 
 	}
 
@@ -406,6 +410,66 @@ public class SeekApi extends ApiscolApi {
 			if (iconsResponse != null)
 				WebServicesResponseMerger.addThumbsReferences(metadataResponse,
 						iconsResponse);
+		}
+
+		if (requestedFormat.equals(CustomMediaType.JSONP.toString())) {
+			String jsonSource = JSonUtils.convertXMLToJson(metadataResponse);
+			Object metadataResponseJson = new JSONWithPadding(jsonSource,
+					callBack);
+			return Response
+					.ok(metadataResponseJson, "application/x-javascript")
+					.build();
+		}
+		return Response.ok(metadataResponse, MediaType.APPLICATION_XML)
+				.header("Access-Control-Allow-Origin", "*").build();
+	}
+
+	private Response getMetadataListByIds(String metadataIds, String callBack,
+			String requestedFormat) throws InvalidMetadataListException {
+		java.lang.reflect.Type collectionType = new TypeToken<List<String>>() {
+		}.getType();
+		// if metadataId is a fully qualified URL, cut the prefix
+		String prefix = new StringBuilder()
+				.append(metadataWebServiceResource.getURI()).append("/")
+				.toString();
+		List<String> forcedMetadataIdList = null;
+		List<String> forcedMetadataIdListWithPrefix = new ArrayList<String>();
+		try {
+			forcedMetadataIdList = new Gson().fromJson(metadataIds,
+					collectionType);
+		} catch (Exception e) {
+			String message = String
+					.format("The list of metadataids %s is impossible to parse as JSON",
+							metadataIds);
+			logger.warn(message);
+			throw new InvalidMetadataListException(message);
+		}
+		Iterator<String> it = forcedMetadataIdList.iterator();
+		while (it.hasNext()) {
+			String metadataId = (String) it.next();
+			if (!metadataId.startsWith(prefix)) {
+				metadataId = new StringBuilder().append(prefix)
+						.append(metadataId).toString();
+			}
+			forcedMetadataIdListWithPrefix.add(metadataId);
+		}
+
+		MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+		queryParams.add("desc", "false");
+		queryParams.add("mdids",
+				new Gson().toJson(forcedMetadataIdListWithPrefix));
+		ClientResponse metadataWebServiceResponse = metadataWebServiceResource
+				.queryParams(queryParams)
+				.accept(MediaType.APPLICATION_XML_TYPE)
+				.get(ClientResponse.class);
+		Document metadataResponse = null;
+		if (metadataWebServiceResponse.getStatus() == Status.OK.getStatusCode())
+			metadataResponse = metadataWebServiceResponse
+					.getEntity(Document.class);
+		else {
+			// TODO lancer message d'erreur
+			System.out.println(metadataWebServiceResponse
+					.getEntity(String.class));
 		}
 
 		if (requestedFormat.equals(CustomMediaType.JSONP.toString())) {
