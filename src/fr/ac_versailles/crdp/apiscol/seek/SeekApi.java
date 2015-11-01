@@ -455,7 +455,7 @@ public class SeekApi extends ApiscolApi {
 		}
 
 		MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
-		queryParams.add("desc", "false");
+		queryParams.add("desc", "true");
 		queryParams.add("mdids",
 				new Gson().toJson(forcedMetadataIdListWithPrefix));
 		ClientResponse metadataWebServiceResponse = metadataWebServiceResource
