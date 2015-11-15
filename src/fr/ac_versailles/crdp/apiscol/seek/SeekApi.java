@@ -55,7 +55,6 @@ public class SeekApi extends ApiscolApi {
 	private static WebResource contentWebServiceResource;
 	private static WebResource metadataWebServiceResource;
 	private static WebResource thumbsWebServiceResource;
-	private static WebResource packWebServiceResource;
 	private static HashMap<UUID, Document> requestWorkersResponses;
 
 	public SeekApi(@Context ServletContext context) {
@@ -73,7 +72,6 @@ public class SeekApi extends ApiscolApi {
 		URI contentWebserviceUrl = null;
 		URI metadataWebserviceUrl = null;
 		URI thumbsWebserviceUrl = null;
-		URI packWebserviceUrl = null;
 		try {
 			contentWebserviceUrl = new URI(getProperty(
 					ParametersKeys.contentWebserviceUrl, context));
@@ -88,13 +86,7 @@ public class SeekApi extends ApiscolApi {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		try {
-			packWebserviceUrl = new URI(getProperty(
-					ParametersKeys.packWebserviceUrl, context));
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		try {
 			thumbsWebserviceUrl = new URI(getProperty(
 					ParametersKeys.thumbsWebserviceUrl, context));
@@ -106,8 +98,6 @@ public class SeekApi extends ApiscolApi {
 				contentWebserviceUrl).build());
 		metadataWebServiceResource = client.resource(UriBuilder.fromUri(
 				metadataWebserviceUrl).build());
-		packWebServiceResource = client.resource(UriBuilder.fromUri(
-				packWebserviceUrl).build());
 		thumbsWebServiceResource = client.resource(UriBuilder.fromUri(
 				thumbsWebserviceUrl).build());
 
