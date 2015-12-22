@@ -20,7 +20,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,13 +32,13 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.json.JSONWithPadding;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import fr.ac_versailles.crdp.apiscol.ApiscolApi;
 import fr.ac_versailles.crdp.apiscol.CustomMediaType;
 import fr.ac_versailles.crdp.apiscol.ParametersKeys;
+import fr.ac_versailles.crdp.apiscol.restClient.LanWebResource;
 import fr.ac_versailles.crdp.apiscol.utils.JSonUtils;
 
 @Path("/")
@@ -52,9 +51,9 @@ public class SeekApi extends ApiscolApi {
 
 	private static boolean staticInitialization = false;
 	private static Client client;
-	private static WebResource contentWebServiceResource;
-	private static WebResource metadataWebServiceResource;
-	private static WebResource thumbsWebServiceResource;
+	private static LanWebResource contentWebServiceResource;
+	private static LanWebResource metadataWebServiceResource;
+	private static LanWebResource thumbsWebServiceResource;
 	private static HashMap<UUID, Document> requestWorkersResponses;
 
 	public SeekApi(@Context ServletContext context) {
@@ -69,38 +68,43 @@ public class SeekApi extends ApiscolApi {
 	private void createWebServiceClients(ServletContext context) {
 		client = Client.create();
 
-		URI contentWebserviceUrl = null;
-		URI metadataWebserviceUrl = null;
-		URI thumbsWebserviceUrl = null;
+		URI contentWebserviceLanUrl = null;
+		URI contentWebserviceWanUrl = null;
+		URI metadataWebserviceLanUrl = null;
+		URI metadataWebserviceWanUrl = null;
+		URI thumbsWebserviceLanUrl = null;
+		URI thumbsWebserviceWanUrl = null;
 		try {
-			contentWebserviceUrl = new URI(getProperty(
-					ParametersKeys.contentWebserviceUrl, context));
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			metadataWebserviceUrl = new URI(getProperty(
-					ParametersKeys.metadataWebserviceUrl, context));
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			contentWebserviceLanUrl = new URI(getProperty(
+					ParametersKeys.contentWebserviceLanUrl, context));
+			contentWebserviceWanUrl = new URI(getProperty(
+					ParametersKeys.contentWebserviceWanUrl, context));
 
-		try {
-			thumbsWebserviceUrl = new URI(getProperty(
-					ParametersKeys.thumbsWebserviceUrl, context));
+			metadataWebserviceLanUrl = new URI(getProperty(
+					ParametersKeys.metadataWebserviceLanUrl, context));
+			metadataWebserviceWanUrl = new URI(getProperty(
+					ParametersKeys.metadataWebserviceWanUrl, context));
+
+			thumbsWebserviceLanUrl = new URI(getProperty(
+					ParametersKeys.thumbsWebserviceLanUrl, context));
+			thumbsWebserviceWanUrl = new URI(getProperty(
+					ParametersKeys.thumbsWebserviceWanUrl, context));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
+		// TODO magical value
 		client.setConnectTimeout(3000);
-		contentWebServiceResource = client.resource(UriBuilder.fromUri(
-				contentWebserviceUrl).build());
-		metadataWebServiceResource = client.resource(UriBuilder.fromUri(
-				metadataWebserviceUrl).build());
-		thumbsWebServiceResource = client.resource(UriBuilder.fromUri(
-				thumbsWebserviceUrl).build());
+		contentWebServiceResource = new LanWebResource(
+				client.resource(contentWebserviceLanUrl));
+		contentWebServiceResource.setWanUrl(contentWebserviceWanUrl);
 
+		metadataWebServiceResource = new LanWebResource(
+				client.resource(metadataWebserviceLanUrl));
+		metadataWebServiceResource.setWanUrl(metadataWebserviceWanUrl);
+
+		thumbsWebServiceResource = new LanWebResource(
+				client.resource(thumbsWebserviceLanUrl));
+		thumbsWebServiceResource.setWanUrl(thumbsWebserviceWanUrl);
 	}
 
 	private void initializeStaticParameters(ServletContext context) {
@@ -374,7 +378,6 @@ public class SeekApi extends ApiscolApi {
 			metadataResponse = metadataWebServiceResponse
 					.getEntity(Document.class);
 		else {
-			// TODO lancer message d'erreur
 			System.out.println(metadataWebServiceResponse
 					.getEntity(String.class));
 		}
@@ -418,9 +421,8 @@ public class SeekApi extends ApiscolApi {
 			String requestedFormat) throws InvalidMetadataListException {
 		java.lang.reflect.Type collectionType = new TypeToken<List<String>>() {
 		}.getType();
-		// if metadataId is a fully qualified URL, cut the prefix
 		String prefix = new StringBuilder()
-				.append(metadataWebServiceResource.getURI()).append("/")
+				.append(metadataWebServiceResource.getWanUrl()).append("/")
 				.toString();
 		List<String> forcedMetadataIdList = null;
 		List<String> forcedMetadataIdListWithPrefix = new ArrayList<String>();
@@ -457,7 +459,6 @@ public class SeekApi extends ApiscolApi {
 			metadataResponse = metadataWebServiceResponse
 					.getEntity(Document.class);
 		else {
-			// TODO lancer message d'erreur
 			System.out.println(metadataWebServiceResponse
 					.getEntity(String.class));
 		}
@@ -600,11 +601,10 @@ public class SeekApi extends ApiscolApi {
 		contentRequestThread.start();
 		metaRequestThread.start();
 		try {
-			// TODO mettre un timeout ?
+			// TODO add timeout ?
 			contentRequestThread.join();
 			metaRequestThread.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Document contentResponse = requestWorkersResponses

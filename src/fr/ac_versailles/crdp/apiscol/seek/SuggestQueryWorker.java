@@ -9,17 +9,19 @@ import org.w3c.dom.Document;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import fr.ac_versailles.crdp.apiscol.restClient.LanWebResource;
+
 public class SuggestQueryWorker implements Runnable {
 
 	private final String query;
-	private final WebResource webServiceResource;
+	private final LanWebResource webServiceResource;
 	private final SeekApi caller;
 	private final UUID identifier;
 
-	public SuggestQueryWorker(String query, WebResource webServiceResource,
+	public SuggestQueryWorker(String query, LanWebResource contentWebServiceResource,
 			SeekApi caller, UUID identifier) {
 		this.query = query;
-		this.webServiceResource = webServiceResource;
+		this.webServiceResource = contentWebServiceResource;
 		this.caller = caller;
 		this.identifier = identifier;
 
