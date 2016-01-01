@@ -357,7 +357,7 @@ public class SeekApi extends ApiscolApi {
 		// if metadataId is a fully qualified URL, cut the prefix
 		addThumbs = false;
 		String prefix = new StringBuilder()
-				.append(metadataWebServiceResource.getURI()).append("/")
+				.append(metadataWebServiceResource.getWanUrl()).append("/")
 				.toString();
 		if (!metadataId.startsWith(prefix)) {
 			String message = "This seek instance does not handle search for this metadata repository "
