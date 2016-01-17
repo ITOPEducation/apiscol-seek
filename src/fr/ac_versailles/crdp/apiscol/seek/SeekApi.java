@@ -330,7 +330,9 @@ public class SeekApi extends ApiscolApi {
 			@DefaultValue("handleQueryResult") @QueryParam(value = "callback") final String callBack,
 			@DefaultValue("0") @QueryParam(value = "fuzzy") final float fuzzy,
 			@DefaultValue("") @QueryParam(value = "static-filters") final String staticFilters,
+			@DefaultValue("") @QueryParam(value = "additive-static-filters") final String additiveStaticFilters,
 			@DefaultValue("") @QueryParam(value = "dynamic-filters") final String dynamicFilters,
+			@DefaultValue("") @QueryParam(value = "additive-dynamic-filters") final String additiveDynamicFilters,
 			@DefaultValue("0") @QueryParam(value = "start") final int start,
 			@DefaultValue("10") @QueryParam(value = "rows") final int rows,
 			@DefaultValue("score") @QueryParam(value = "sort") final String sort,
@@ -346,7 +348,8 @@ public class SeekApi extends ApiscolApi {
 		if (!StringUtils.isEmpty(metadataIds))
 			return getMetadataListByIds(metadataIds, callBack, requestedFormat);
 		return searchMetadata(query, callBack, fuzzy, staticFilters,
-				dynamicFilters, start, rows, sort, requestedFormat,
+				dynamicFilters, additiveStaticFilters, additiveDynamicFilters,
+				start, rows, sort, requestedFormat,
 				StringUtils.equals(addThumbs, "true"));
 
 	}
@@ -476,10 +479,11 @@ public class SeekApi extends ApiscolApi {
 	}
 
 	private Response searchMetadata(String query, String callBack, float fuzzy,
-			String staticFilters, String dynamicFilters, int start, int rows,
-			String sort, String requestedFormat, boolean addThumbs)
-			throws MetadataRepositoryFailureException, ClientHandlerException,
-			UniformInterfaceException {
+			String staticFilters, String dynamicFilters,
+			String additiveStaticFilters, String additiveDynamicFilters,
+			int start, int rows, String sort, String requestedFormat,
+			boolean addThumbs) throws MetadataRepositoryFailureException,
+			ClientHandlerException, UniformInterfaceException {
 		MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
 		queryParams.add("query", query);
 		queryParams.add("fuzzy", Float.toString(fuzzy));
@@ -505,9 +509,12 @@ public class SeekApi extends ApiscolApi {
 				e.printStackTrace();
 			}
 		}
+		System.out.println(staticFilters);
 		// complete query with metadata specific fields
 		queryParams.add("static-filters", staticFilters);
 		queryParams.add("dynamic-filters", dynamicFilters);
+		queryParams.add("additive-static-filters", additiveStaticFilters);
+		queryParams.add("additive-dynamic-filters", additiveDynamicFilters);
 		queryParams.add("start", Integer.toString(start));
 		queryParams.add("rows", Integer.toString(rows));
 		queryParams.add("sort", sort);
