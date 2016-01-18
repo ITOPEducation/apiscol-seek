@@ -509,7 +509,6 @@ public class SeekApi extends ApiscolApi {
 				e.printStackTrace();
 			}
 		}
-		System.out.println(staticFilters);
 		// complete query with metadata specific fields
 		queryParams.add("static-filters", staticFilters);
 		queryParams.add("dynamic-filters", dynamicFilters);
