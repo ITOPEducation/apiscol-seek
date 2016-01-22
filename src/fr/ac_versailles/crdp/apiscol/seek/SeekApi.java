@@ -167,10 +167,10 @@ public class SeekApi extends ApiscolApi {
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;href="http://server.url:server.port/meta/?query=statistiques&format=xml&desc=true"
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rel="self" /&gt;
 	 * &nbsp;&nbsp;&nbsp;&lt;logo&gt;
-	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://apiscol.crdp-versailles.fr/cdn/0.0.1/img/logo-api.png
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://apiscol.cdn.local/cdn/0.0.1/img/logo-api.png
 	 * &nbsp;&nbsp;&nbsp;&lt;/logo&gt;
 	 * &nbsp;&nbsp;&nbsp;&lt;icon&gt;
-	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://apiscol.crdp-versailles.fr/cdn/0.0.1/img/logo-api.png
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://apiscol.cdn.local/cdn/0.0.1/img/logo-api.png
 	 * &nbsp;&nbsp;&nbsp;&lt;/icon&gt;
 	 * &nbsp;&nbsp;&nbsp;&lt;id&gt;http://server.url:server.port/meta/&lt;/id&gt;
 	 * &nbsp;&nbsp;&nbsp;&lt;title&gt;Example de dépôt de ressources - eclipse&lt;/title&gt;
