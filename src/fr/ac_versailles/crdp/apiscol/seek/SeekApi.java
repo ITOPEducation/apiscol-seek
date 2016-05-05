@@ -365,7 +365,7 @@ public class SeekApi extends ApiscolApi {
 		if (!metadataId.startsWith(prefix)) {
 			String message = "This seek instance does not handle search for this metadata repository "
 					+ metadataId;
-			logger.error(message);
+			getLogger().error(message);
 			throw new UnknownMetadataRepositoryException(message);
 		}
 
@@ -436,7 +436,7 @@ public class SeekApi extends ApiscolApi {
 			String message = String
 					.format("The list of metadataids %s is impossible to parse as JSON",
 							metadataIds);
-			logger.warn(message);
+			getLogger().warn(message);
 			throw new InvalidMetadataListException(message);
 		}
 		Iterator<String> it = forcedMetadataIdList.iterator();
@@ -504,7 +504,7 @@ public class SeekApi extends ApiscolApi {
 				queryParams.add("supplements", StringUtils.join(
 						metadataFromExtractedResponse.keySet(), ","));
 			} catch (ClientHandlerException e) {
-				logger.error("Connexion to content search aborted for timeout : "
+				getLogger().error("Connexion to content search aborted for timeout : "
 						+ e.getMessage());
 				e.printStackTrace();
 			}
