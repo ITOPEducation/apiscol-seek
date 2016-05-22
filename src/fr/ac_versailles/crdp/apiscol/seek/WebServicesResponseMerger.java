@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -22,7 +21,6 @@ import org.w3c.dom.NodeList;
 
 import fr.ac_versailles.crdp.apiscol.UsedNamespaces;
 import fr.ac_versailles.crdp.apiscol.utils.LogUtility;
-import fr.ac_versailles.crdp.apiscol.utils.XMLUtils;
 
 public class WebServicesResponseMerger {
 
