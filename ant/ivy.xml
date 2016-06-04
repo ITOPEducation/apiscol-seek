@@ -20,7 +20,7 @@
 	</configurations>
 	<dependencies>
 		<dependency org="crdp_versailles" name="apiscol-commons"
-			rev="1.4" conf="seek->commons" />
+			rev="1.5" conf="seek->commons" />
 		<dependency org="com.sun.jersey" name="jersey-client" rev="1.17.1" />
 		<dependency org="com.sun.jersey" name="jersey-server" rev="1.17.1" />
 		<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.17.1" />
