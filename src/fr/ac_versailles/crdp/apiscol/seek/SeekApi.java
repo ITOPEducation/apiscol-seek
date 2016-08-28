@@ -44,6 +44,9 @@ import fr.ac_versailles.crdp.apiscol.utils.JSonUtils;
 @Path("/")
 public class SeekApi extends ApiscolApi {
 
+	// Detect strings like URN:... and ark:/...
+	private static final String REGULAR_IDENTIFIER_REGEXP = "^\\w{3}:.+";
+
 	@Context
 	UriInfo uriInfo;
 	@Context
@@ -342,11 +345,13 @@ public class SeekApi extends ApiscolApi {
 			MetadataRepositoryFailureException, ClientHandlerException,
 			UniformInterfaceException, InvalidMetadataListException {
 		String requestedFormat = guessRequestedFormat(request, format);
-		if (!StringUtils.isEmpty(metadataId))
+		if (!StringUtils.isEmpty(metadataId)) {
 			return getMetadataById(metadataId, callBack, requestedFormat,
 					StringUtils.equals(addThumbs, "true"));
-		if (!StringUtils.isEmpty(metadataIds))
+		}
+		if (!StringUtils.isEmpty(metadataIds)) {
 			return getMetadataListByIds(metadataIds, callBack, requestedFormat);
+		}
 		return searchMetadata(query, callBack, fuzzy, staticFilters,
 				dynamicFilters, additiveStaticFilters, additiveDynamicFilters,
 				start, rows, sort, requestedFormat,
@@ -362,7 +367,8 @@ public class SeekApi extends ApiscolApi {
 		String prefix = new StringBuilder()
 				.append(metadataWebServiceResource.getWanUrl()).append("/")
 				.toString();
-		if (!metadataId.startsWith(prefix)) {
+		if (!metadataId.matches(REGULAR_IDENTIFIER_REGEXP)
+				&& !metadataId.startsWith(prefix)) {
 			String message = "This seek instance does not handle search for this metadata repository "
 					+ metadataId;
 			getLogger().error(message);
@@ -442,7 +448,8 @@ public class SeekApi extends ApiscolApi {
 		Iterator<String> it = forcedMetadataIdList.iterator();
 		while (it.hasNext()) {
 			String metadataId = (String) it.next();
-			if (!metadataId.startsWith(prefix)) {
+			if (!metadataId.matches(REGULAR_IDENTIFIER_REGEXP)
+					&& !metadataId.startsWith(prefix)) {
 				metadataId = new StringBuilder().append(prefix)
 						.append(metadataId).toString();
 			}
@@ -504,8 +511,9 @@ public class SeekApi extends ApiscolApi {
 				queryParams.add("supplements", StringUtils.join(
 						metadataFromExtractedResponse.keySet(), ","));
 			} catch (ClientHandlerException e) {
-				getLogger().error("Connexion to content search aborted for timeout : "
-						+ e.getMessage());
+				getLogger().error(
+						"Connexion to content search aborted for timeout : "
+								+ e.getMessage());
 				e.printStackTrace();
 			}
 		}
