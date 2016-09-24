@@ -45,7 +45,9 @@ import fr.ac_versailles.crdp.apiscol.utils.JSonUtils;
 public class SeekApi extends ApiscolApi {
 
 	// Detect strings like URN:... and ark:/...
-	private static final String REGULAR_IDENTIFIER_REGEXP = "^\\w{3}:.+";
+	private static final String URN_REGEXP = "^URN:.+";
+	
+	private static final String ARK_REGEXP = ".+ark:/.+";
 
 	@Context
 	UriInfo uriInfo;
@@ -367,7 +369,7 @@ public class SeekApi extends ApiscolApi {
 		String prefix = new StringBuilder()
 				.append(metadataWebServiceResource.getWanUrl()).append("/")
 				.toString();
-		if (!metadataId.matches(REGULAR_IDENTIFIER_REGEXP)
+		if (!metadataId.matches(URN_REGEXP) && !metadataId.matches(ARK_REGEXP)
 				&& !metadataId.startsWith(prefix)) {
 			String message = "This seek instance does not handle search for this metadata repository "
 					+ metadataId;
@@ -448,7 +450,7 @@ public class SeekApi extends ApiscolApi {
 		Iterator<String> it = forcedMetadataIdList.iterator();
 		while (it.hasNext()) {
 			String metadataId = (String) it.next();
-			if (!metadataId.matches(REGULAR_IDENTIFIER_REGEXP)
+			if (!metadataId.matches(URN_REGEXP)
 					&& !metadataId.startsWith(prefix)) {
 				metadataId = new StringBuilder().append(prefix)
 						.append(metadataId).toString();
