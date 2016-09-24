@@ -450,7 +450,7 @@ public class SeekApi extends ApiscolApi {
 		Iterator<String> it = forcedMetadataIdList.iterator();
 		while (it.hasNext()) {
 			String metadataId = (String) it.next();
-			if (!metadataId.matches(URN_REGEXP)
+			if (!metadataId.matches(URN_REGEXP) && !metadataId.matches(ARK_REGEXP)
 					&& !metadataId.startsWith(prefix)) {
 				metadataId = new StringBuilder().append(prefix)
 						.append(metadataId).toString();
